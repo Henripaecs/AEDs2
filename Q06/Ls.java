@@ -1,4 +1,4 @@
-//package Q06;
+package Q06;
 import java.util.Scanner;
 
 public class Ls {
