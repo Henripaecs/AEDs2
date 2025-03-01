@@ -1,3 +1,0 @@
-Crie um método iterativo que recebe uma string como parâmetro e retorna o número de palavras na string. Uma palavra é definida como uma sequência de caracteres separada por 
-espaços. Na saída padrão, para cada linha de entrada, escreva uma linha de saída com o número de palavras. Por exemplo, se a entrada for Hello world, a saída deve ser 2.
-
