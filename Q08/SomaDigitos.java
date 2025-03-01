@@ -1,4 +1,4 @@
-//package Q08;
+package Q08;
 import java.util.Scanner;
 
 public class SomaDigitos {
