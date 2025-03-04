@@ -1,20 +1,14 @@
-package Q09;
 
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class Anagrama {
+public class Anagrama{
     public static boolean Verificar(String str1, String str2){
         if (str1.length() != str2.length()){
             return false;
         }
-        char[] array1 = str1.toCharArray();
-        char[] array2 = str2.toCharArray();
-
-        for (int i = 0; i < str1.length(); i++){
-            array1[i] = Character.toUpperCase(array1[i]);
-            array2[i] = Character.toUpperCase(array2[i]);
-        }
+        char[] array1 = str1.toUpperCase().toCharArray();
+        char[] array2 = str2.toUpperCase().toCharArray();
         
         Arrays.sort(array1);
         Arrays.sort(array2);
@@ -26,12 +20,14 @@ public class Anagrama {
 
         while (true){
             String entrada1 = scanner.nextLine();
-
             if (entrada1.equals("FIM")){
                 break;
             }
-            
+            if (!scanner.hasNextLine()){
+                break;
+            }
             String entrada2 = scanner.nextLine();
+
 
             if (Verificar(entrada1, entrada2)){
                 System.out.println("SIM");
