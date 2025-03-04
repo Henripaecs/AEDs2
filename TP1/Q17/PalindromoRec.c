@@ -1,15 +1,15 @@
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdbool.h>
 
 bool isPalindromo(char str[], int left, int right) {
     if (left >= right) {
         return true;
     }
-    while (left < right && !isalnum(str[left])) left++;
-    while (left < right && !isalnum(str[right])) right--;
-    
+    if (str[left] != str[right]) {
+        return false;
+    }
+
     if (tolower(str[left]) != tolower(str[right])) {
         return false;
     }

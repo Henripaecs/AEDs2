@@ -1,8 +1,7 @@
-
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class Anagrama{
+public class Anagrama {
     public static boolean Verificar(String str1, String str2){
         if (str1.length() != str2.length()){
             return false;
@@ -15,6 +14,7 @@ public class Anagrama{
         
         return Arrays.equals(array1, array2);
     }    
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
@@ -23,18 +23,16 @@ public class Anagrama{
             if (entrada1.equals("FIM")){
                 break;
             }
-            if (!scanner.hasNextLine()){
-                break;
-            }
+            
             String entrada2 = scanner.nextLine();
-
 
             if (Verificar(entrada1, entrada2)){
                 System.out.println("SIM");
-            }else{
+            } else {
                 System.out.println("NÃO");
             }
         }
-        scanner.close();;
+
+        scanner.close();
     }
 }
