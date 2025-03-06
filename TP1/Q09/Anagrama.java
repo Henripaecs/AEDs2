@@ -17,7 +17,6 @@ public class Anagrama {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-
         while (true){
             String entrada1 = scanner.nextLine();
             if (entrada1.equals("FIM")){
