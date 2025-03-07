@@ -21,7 +21,7 @@ int main() {
         fgets(palavra, sizeof(palavra), stdin);
         palavra[strcspn(palavra, "\n")] = 0;
 
-        if (strcmp(palavra, "FIM") == 0) {
+        if (strcmp(palavra, "FIM") == 0){
             break;
         }
 
