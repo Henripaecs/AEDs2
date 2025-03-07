@@ -2,36 +2,33 @@
 #include <string.h>
 #include <stdbool.h>
 
-bool isPalindromo(char str[], int left, int right) {
-    if (left >= right) {
+bool ehPalindromo(char *str, int esquerda, int direita) {    
+    if (esquerda >= direita) {
         return true;
     }
-    if (str[left] != str[right]) {
+    if (str[esquerda] != str[direita]) {
         return false;
     }
-
-    if (tolower(str[left]) != tolower(str[right])) {
-        return false;
-    }
-    return isPalindromo(str, left + 1, right - 1);
+    return ehPalindromo(str, esquerda + 1, direita - 1);
 }
 
 int main() {
-    char str[100];    
-    
-    while (1) {
+    char str[1000];
+
+    while (true) {
         fgets(str, sizeof(str), stdin);
         str[strcspn(str, "\n")] = 0;
-        
+
         if (strcmp(str, "FIM") == 0) {
             break;
         }
-        
-        if (isPalindromo(str, 0, strlen(str) - 1)) {
+
+        if (ehPalindromo(str, 0, strlen(str) - 1)) {
             printf("SIM\n");
         } else {
             printf("NAO\n");
         }
-    }      
+    }
+
     return 0;
 }
