@@ -15,7 +15,9 @@ public class Lsrec {
         return First(str, index + 1);
     }
     public static boolean Second(String  str, int index){
-        if (index == str.length());
+        if (index == str.length()){
+            return true;
+        }
 
         char c = str.charAt(index);
 
@@ -26,7 +28,9 @@ public class Lsrec {
         return Second(str, index + 1);
     }
     public static boolean Third(String str, int index){
-        if (index == str.length());
+        if (index == str.length()){
+            return true;
+        }
 
         char c = str.charAt(index);
 

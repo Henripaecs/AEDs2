@@ -5,21 +5,19 @@
 int main() {
     FILE *file;
     double value;
-    char input[50];
+    char num[50];
 
     file = fopen("numbers.txt", "w");
     if (!file) {
-        perror("Erro ao abrir o arquivo para escrita");
         return 1;
     }
 
     while (1) {
-        scanf("%s", input);
-        if (strcmp(input, "FIM") == 0) {
+        scanf("%s", num);
+        if (strcmp(num, "FIM") == 0) {
             break;
         }
-        if (fprintf(file, "%s\n", input) < 0) {
-            perror("Erro");
+        if (fprintf(file, "%s\n", num) < 0) {
             fclose(file);
             return 1;
         }
@@ -28,7 +26,6 @@ int main() {
 
     file = fopen("numbers.txt", "r");
     if (!file) {
-        perror("Erro");
         return 1;
     }
 
