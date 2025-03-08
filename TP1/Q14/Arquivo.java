@@ -1,52 +1,53 @@
 package Q14;
 
-import java.io.*;
+import java.io.RandomAccessFile;
 import java.util.Scanner;
 
 public class Arquivo {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        String filename = "numbers.txt";
-        
-        try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
-            while (scanner.hasNext()) {
-                String input = scanner.next();
-                if (input.equalsIgnoreCase("FIM")) {
-                    break;
-                }
-                try {
-                    double value = Double.parseDouble(input);
-                    writer.println(value);
-                } catch (NumberFormatException e) {
-                    System.err.println("Entrada inválida.");
+
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();  // Número de valores a serem lidos
+
+        try {
+            // Abrir o arquivo para leitura e escrita
+            RandomAccessFile raf = new RandomAccessFile("Questao08.txt", "rw");
+
+            // Escrever os números reais no arquivo
+            for (int i = 0; i < n; i++) {
+                double num = sc.nextDouble();
+                raf.writeDouble(num);
+            }
+
+            // Agora vamos ler os números de trás para frente
+            // Tamanho de um double em bytes
+            long doubleSize = 8;
+
+            // Ir para o último número no arquivo
+            for (int i = n - 1; i >= 0; i--) {
+                raf.seek(i * doubleSize);  // Posicionar o ponteiro no início do número i
+                double num = raf.readDouble();
+                if(isInteiro(num)){
+                    System.out.println((int)num);
+                } else {
+                    System.out.println(num);
                 }
             }
-        } catch (IOException e) {
-            System.err.println("Erro: " + e.getMessage());
-            return;
+
+            raf.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        
-        try (RandomAccessFile file = new RandomAccessFile(filename, "r")) {
-            long length = file.length();
-            long pos = length - 1;
-            
-            while (pos >= 0) {
-                file.seek(pos);
-                char ch = (char) file.readByte();
-                if (ch == '\n') {
-                    if (pos != length - 1) {
-                        System.out.println(file.readLine());
-                    }
-                    length = pos;
-                }
-                pos--;
-            }
-            
-            file.seek(0);
-            System.out.println(file.readLine());
-            
-        } catch (IOException e) {
-            System.err.println("Erro: " + e.getMessage());
+
+        sc.close();
+    }
+
+    public static boolean isInteiro(double num) {
+        if(num == (int)num){
+            return true;
+        } else {
+            return false;
         }
     }
 }
+
