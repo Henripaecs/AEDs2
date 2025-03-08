@@ -2,25 +2,32 @@ package Q18;
 import java.util.Scanner;
 
 public class CiframentoRec {
-    public static String CiframentoCesar(String str, int aux){
-        if (aux == str.length()){
+    public static String criptografar(String str, int chave, int i) {
+        if (i == str.length()) {
             return "";
         }
-        return (char)(str.charAt(aux) + 3) + CiframentoCesar(str, aux + 1);
+        
+        char caractere = str.charAt(i); 
+        int codigo = (int) caractere; 
+        
+        if (codigo >= 32 && codigo <= 126) {
+            codigo = (codigo - 32 + chave) % 95 + 32;
+            return (char) codigo + criptografar(str, chave, i + 1);
+        } else {
+            return caractere + criptografar(str, chave, i + 1);
+        }
     }
 
     public static void main(String[] args) {
-        Scanner scannear = new Scanner(System.in);
-
-        while(true){
-            String cifra = scannear.nextLine();
-
-            if(cifra.equals("FIM")){
-                break;
-            }
-            System.out.println(CiframentoCesar(cifra, 0));
+        Scanner scanner = new Scanner(System.in);
+        int chave = 3;
+        String string;
+        
+        while(!(string = scanner.nextLine()).equals("FIM")){
+            String palavraCriptografada = criptografar(string, chave, 0);
+            System.out.println(palavraCriptografada);
         }
-        scannear.close();
-    }
-    
+        
+        scanner.close();
+    }     
 }

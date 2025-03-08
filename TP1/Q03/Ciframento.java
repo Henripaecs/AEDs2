@@ -1,27 +1,33 @@
-package Q03;
+//package tps.tp1;
+
 import java.util.Scanner;
 
-public class Ciframento {
-    public static String CiframentoCesar(String str){
-        StringBuilder ciframento = new StringBuilder();
-        for(int i = 0; i < str.length(); i++){
-            ciframento.append((char)(str.charAt(i) + 3));
-        }
-        return ciframento.toString();
-    }
+public class Ciframento{
+    public static String criptografar(String str, int chave) {
+        String cifrado = "";
+        int size = str.length();
 
-    public static void main(String[] args) {
-        Scanner scannear = new Scanner(System.in);
-
-        while(true){
-            String cifra = scannear.nextLine();
-
-            if(cifra.equals("FIM")){
-                break;
+        for (int i = 0; i < size; i++){
+            char caractere = str.charAt(i); 
+            int codigo = (int) caractere; 
+            if (codigo >= 32 && codigo <= 126){
+               
+                codigo = (codigo - 32 + chave) % 95 + 32;
+                cifrado += (char) codigo;
+            }else{
+                cifrado += caractere;
             }
-            System.out.println(CiframentoCesar(cifra));
         }
-        scannear.close();
+        return cifrado;
     }
-    
+    public static void main(String[] args){
+        Scanner scanner = new Scanner(System.in);
+        int chave = 3;
+        String string;
+        while(!(string = scanner.nextLine()).equals("FIM")){
+                String palavraCriptografada = criptografar(string, chave);
+                System.out.println(palavraCriptografada);
+        }
+        scanner.close();
+    }     
 }
