@@ -18,7 +18,7 @@ public class Anagrama {
         return Arrays.equals(array1, array2);
     }    
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
 
         while (scanner.hasNextLine()){  
@@ -30,7 +30,7 @@ public class Anagrama {
             if (Verificar(partes[0], partes[1])) {
                  System.out.println("SIM");
             } else {
-                System.out.println("NAO");
+                System.out.println("NÃO");
             }
             
         }
