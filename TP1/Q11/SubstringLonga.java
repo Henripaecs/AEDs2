@@ -16,10 +16,6 @@ public class SubstringLonga{
             maiorTamanho = Math.max(maiorTamanho, direita - esquerda + 1);
         }
 
-        if (maiorTamanho == texto.length()) {
-            return 0;
-        }
-
         return maiorTamanho;
     }
 
