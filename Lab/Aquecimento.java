@@ -24,5 +24,6 @@ public class Aquecimento {
             }
             System.out.println(upper(str));
         } while (true);
+        scanner.close();
     }
 }
