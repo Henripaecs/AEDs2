@@ -9,6 +9,7 @@
 #define MAX_FIELDS 12
 #define MAX_STR 256
 #define MAX_ARRAY 20
+#define MAX_SHOWS 1000
 
 typedef struct {
     char show_id[MAX_STR];

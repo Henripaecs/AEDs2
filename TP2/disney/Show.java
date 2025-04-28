@@ -1,4 +1,4 @@
-//package disney;
+package disney;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -100,14 +100,11 @@ public class Show implements Cloneable {
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
         String dataStr = (date_added != null) ? sdf.format(date_added) : "NaN";
     
-        //ordenar
         String[] castOrdenado = cast.clone();
         Arrays.sort(castOrdenado, String.CASE_INSENSITIVE_ORDER);
     
-        //tirar ("") titulo
         String titleLimpo = title.replaceAll("\"", "");
 
-        //tirar ("") cast
         for (int i = 0; i < castOrdenado.length; i++){
             castOrdenado[i] = castOrdenado[i].replaceAll("\"", "");
         } 
