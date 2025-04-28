@@ -6,7 +6,6 @@ import java.util.Scanner;
 
 
 public class PesquisaSequencial {
-
     public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);
         ArrayList<Show> vetor = new ArrayList<>();

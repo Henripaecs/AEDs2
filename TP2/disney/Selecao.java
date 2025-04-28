@@ -1,8 +1,6 @@
 package disney;
 
 import java.io.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Selecao {
@@ -11,7 +9,7 @@ public class Selecao {
         Map<String, String> dadosCSV = new HashMap<>();
         Scanner sc = new Scanner(System.in);
 
-        //BufferedReader br = new BufferedReader(new FileReader("./disneyplus.csv")); // máquina local
+        //BufferedReader br = new BufferedReader(new FileReader("./disneyplus.csv")); // maquina
         BufferedReader br = new BufferedReader(new FileReader("/tmp/disneyplus.csv")); // verde
 
         br.readLine(); 
@@ -62,7 +60,7 @@ public class Selecao {
             s.imprimir();
         }
 
-        BufferedWriter bw = new BufferedWriter(new FileWriter("846431_selecao.txt")); // Troque pela sua matrícula
+        BufferedWriter bw = new BufferedWriter(new FileWriter("846431_selecao.txt"));
         bw.write("846431\t" + comparacoes + "\t" + movimentacoes + "\t" + String.format("%.2f", tempoExecucao));
         bw.close();
     }
