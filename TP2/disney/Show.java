@@ -1,4 +1,4 @@
-package disney;
+//package disney;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -174,6 +174,69 @@ public class Show implements Cloneable {
 
         sc.close();
     }*/
+
+    //|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    //PESQUISA SELECAO
+    //|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+    public static void selectionSortTitle(ArrayList<Show> lista) {
+        int n = lista.size();
+        for (int i = 0; i < n - 1; i++) {
+            int menor = i;
+            for (int j = i + 1; j < n; j++) {
+                if (lista.get(j).getTitle().compareToIgnoreCase(lista.get(menor).getTitle()) < 0) {
+                    menor = j;
+                }
+            }
+            if (menor != i) {
+                Show temp = lista.get(i).clone();
+                lista.set(i, lista.get(menor).clone());
+                lista.set(menor, temp.clone());
+            }
+        }
+    }
+    public static void main(String[] args) throws IOException {
+        Scanner sc = new Scanner(System.in);
+
+        String entrada;
+        while (true) {
+            entrada = sc.nextLine();
+            if (entrada.equals("FIM")) {
+                break;
+            }
+        }
+
+        BufferedReader br;
+        while (true) {
+            entrada = sc.nextLine();
+            if (entrada.equals("FIM")) {
+                break; // finalizar programa
+            }
+
+            boolean encontrado = false;
+            //br = new BufferedReader(new FileReader("./disneyplus.csv")); //maquina
+            br = new BufferedReader(new FileReader("/tmp/disneyplus.csv")); //verde
+            br.readLine(); 
+
+            String linha;
+            while ((linha = br.readLine()) != null) {
+                String id = linha.split(",")[0]; 
+                if (id.equals(entrada)) {
+                    encontrado = true;
+                    break;
+                }
+            }
+            br.close();
+
+            if (encontrado) {
+                System.out.println("SIM");
+            } else {
+                System.out.println("NAO");
+            }
+        }
+
+        sc.close();
+    }    
 
     //|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
     //PESQUISA SEQUENCIAL
@@ -744,7 +807,7 @@ public class Show implements Cloneable {
     //|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
     //QUICKSORT PARCIAL 
     //|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-    
+    /*
     private static void quickSort(ArrayList<Show> lista, int esq, int dir, int comparacoes[], int movimentacoes[]) {
         if (esq < dir) {
             int pivo = partition(lista, esq, dir, comparacoes, movimentacoes);
@@ -833,5 +896,5 @@ public class Show implements Cloneable {
         BufferedWriter bw = new BufferedWriter(new FileWriter("846431_quicksort.txt"));
         bw.write("846431\t" + comparacoes + "\t" + movimentacoes + "\t" + String.format("%.2f", tempoExecucao));
         bw.close();
-    }
+    }*/
 }
