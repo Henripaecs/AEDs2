@@ -168,17 +168,17 @@ public class PesquisaSequencial {
         while (true) {
             entrada = sc.nextLine();
             if (entrada.equals("FIM")) {
-                break; // finalizar programa
+                break;
             }
 
             boolean encontrado = false;
             //br = new BufferedReader(new FileReader("./disneyplus.csv")); //maquina
             br = new BufferedReader(new FileReader("/tmp/disneyplus.csv")); //verde
             br.readLine(); 
-
+            
             String linha;
             while ((linha = br.readLine()) != null) {
-                String id = linha.split(",")[0]; 
+                String id = linha.split(",")[2]; 
                 if (id.equals(entrada)) {
                     encontrado = true;
                     break;
