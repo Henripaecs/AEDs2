@@ -1,16 +1,12 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Scanner;
 
 class Show {
@@ -141,44 +137,12 @@ class Show {
 }
 
 public class PesquisaSequencial {
-    public static void main(String[] args) throws IOException {
-        ArrayList<Show> lista = new ArrayList<>();
-        Map<String, String> dadosCSV = new HashMap<>();
-        Scanner sc = new Scanner(System.in);
-
-        //BufferedReader br = new BufferedReader(new FileReader("./disneyplus.csv")); // maquina
-        BufferedReader br = new BufferedReader(new FileReader("/tmp/disneyplus.csv")); // verde
-
-        br.readLine(); 
-        String linha;
-        
-        while ((linha = br.readLine()) != null) {
-            String id = linha.split(",")[0];
-            dadosCSV.put(id, linha);
-        }
-        br.close();
-
-        String entrada;
-        while (!(entrada = sc.nextLine()).equals("FIM")) {
-            if (dadosCSV.containsKey(entrada)) {
-                Show show = new Show();
-                show.ler(dadosCSV.get(entrada));
-                lista.add(show);
-            }
-        }
-        sc.close();
-
-        int comparacoes = 0;
-        int movimentacoes = 0;
-
-        long inicio = System.nanoTime();
-
-        //Selection Sort
-        for (int i = 0; i < lista.size() - 1; i++) {
+    public static void selectionSortTitle(ArrayList<Show> lista) {
+        int n = lista.size();
+        for (int i = 0; i < n - 1; i++) {
             int menor = i;
-            for (int j = i + 1; j < lista.size(); j++) {
-                comparacoes++;
-                if (lista.get(j).getTitle().compareTo(lista.get(menor).getTitle()) < 0) {
+            for (int j = i + 1; j < n; j++) {
+                if (lista.get(j).getTitle().compareToIgnoreCase(lista.get(menor).getTitle()) < 0) {
                     menor = j;
                 }
             }
@@ -186,19 +150,49 @@ public class PesquisaSequencial {
                 Show temp = lista.get(i).clone();
                 lista.set(i, lista.get(menor).clone());
                 lista.set(menor, temp.clone());
-                movimentacoes += 3; //3 movis
+            }
+        }
+    }
+    public static void main(String[] args) throws IOException {
+        Scanner sc = new Scanner(System.in);
+
+        String entrada;
+        while (true) {
+            entrada = sc.nextLine();
+            if (entrada.equals("FIM")) {
+                break;
             }
         }
 
-        long fim = System.nanoTime();
-        double tempoExecucao = (fim - inicio) / 1_000_000.0;
+        BufferedReader br;
+        while (true) {
+            entrada = sc.nextLine();
+            if (entrada.equals("FIM")) {
+                break; // finalizar programa
+            }
 
-        for (Show s : lista) {
-            s.imprimir();
+            boolean encontrado = false;
+            //br = new BufferedReader(new FileReader("./disneyplus.csv")); //maquina
+            br = new BufferedReader(new FileReader("/tmp/disneyplus.csv")); //verde
+            br.readLine(); 
+
+            String linha;
+            while ((linha = br.readLine()) != null) {
+                String id = linha.split(",")[0]; 
+                if (id.equals(entrada)) {
+                    encontrado = true;
+                    break;
+                }
+            }
+            br.close();
+
+            if (encontrado) {
+                System.out.println("SIM");
+            } else {
+                System.out.println("NAO");
+            }
         }
 
-        BufferedWriter bw = new BufferedWriter(new FileWriter("846431_selecao.txt"));
-        bw.write("846431\t" + comparacoes + "\t" + movimentacoes + "\t" + String.format("%.2f", tempoExecucao));
-        bw.close();
+        sc.close();
     }
 }
