@@ -1,8 +1,11 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,7 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Show implements Cloneable {
+class Show {
     private String show_id;
     private String type;
     private String title;
@@ -90,8 +93,8 @@ public class Show implements Cloneable {
         return new Show(show_id, type, title, director, cast.clone(), country, date_added, release_year, rating, duration, listed_in.clone());
     }
 
-    // imprimir
-    public void imprimir() {
+     // imprimir
+     public void imprimir() {
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
         String dataStr = (date_added != null) ? sdf.format(date_added) : "NaN";
     
@@ -135,33 +138,96 @@ public class Show implements Cloneable {
         this.duration = campos[9];
         this.listed_in = campos[10].equals("NaN") ? new String[]{"NaN"} : campos[10].split(", ");
     }
+}
+
+public class ParcialQuicksort {
+    private static void quickSort(ArrayList<Show> lista, int esq, int dir, int comparacoes[], int movimentacoes[]) {
+        if (esq < dir) {
+            int pivo = partition(lista, esq, dir, comparacoes, movimentacoes);
+            quickSort(lista, esq, pivo - 1, comparacoes, movimentacoes);
+            quickSort(lista, pivo + 1, dir, comparacoes, movimentacoes);
+        }
+    }
+    
+    private static int partition(ArrayList<Show> lista, int esq, int dir, int comparacoes[], int movimentacoes[]) {
+        Show pivo = lista.get(dir).clone();
+        int i = esq - 1;
+        for (int j = esq; j < dir; j++) {
+            comparacoes[0]++;
+            if (lista.get(j).getTitle().compareTo(pivo.getTitle()) <= 0) {
+                i++;
+                Show temp = lista.get(i).clone();
+                lista.set(i, lista.get(j).clone());
+                lista.set(j, temp.clone());
+                movimentacoes[0] += 3;
+            }
+        }
+        Show temp = lista.get(i + 1).clone();
+        lista.set(i + 1, lista.get(dir).clone());
+        lista.set(dir, temp.clone());
+        movimentacoes[0] += 3;
+        return i + 1;
+    }
     public static void main(String[] args) throws IOException {
+        ArrayList<Show> lista = new ArrayList<>();
         Map<String, String> dadosCSV = new HashMap<>();
-        //BufferedReader br = new BufferedReader(new FileReader("./disneyplus.csv"));//maquina
-        BufferedReader br = new BufferedReader(new FileReader("/tmp/disneyplus.csv"));//verde 
-
-        br.readLine();
-
+        Scanner sc = new Scanner(System.in);
+    
+        //BufferedReader br = new BufferedReader(new FileReader("./disneyplus.csv")); //maquina
+        BufferedReader br = new BufferedReader(new FileReader("/tmp/disneyplus.csv")); //verde
+    
+        br.readLine(); 
         String linha;
+        
         while ((linha = br.readLine()) != null) {
             String id = linha.split(",")[0];
             dadosCSV.put(id, linha);
         }
         br.close();
-
-        Scanner sc = new Scanner(System.in);
+    
         String entrada;
-
         while (!(entrada = sc.nextLine()).equals("FIM")) {
             if (dadosCSV.containsKey(entrada)) {
                 Show show = new Show();
                 show.ler(dadosCSV.get(entrada));
-                show.imprimir();
-            } else {
-                System.out.println("=> NaN ## NaN ## NaN ## NaN ## [NaN] ## NaN ## NaN ## -1 ## NaN ## NaN ## [NaN] ##");
+                lista.add(show);
             }
         }
-
         sc.close();
+    
+        int comparacoes = 0;
+        int movimentacoes = 0;
+    
+        quickSort(lista, comparacoes, movimentacoes, null, null);
+
+        long inicio = System.nanoTime();
+    
+        int limite = Math.min(10, lista.size());
+        for (int i = 0; i < limite; i++) {
+            int menor = i;
+            for (int j = i + 1; j < lista.size(); j++) {
+                comparacoes++;
+                if (lista.get(j).getTitle().compareTo(lista.get(menor).getTitle()) < 0) {
+                    menor = j;
+                }
+            }
+            if (menor != i) {
+                Show temp = lista.get(i).clone();
+                lista.set(i, lista.get(menor).clone());
+                lista.set(menor, temp.clone());
+                movimentacoes += 3; //3 movi
+            }
+        }
+    
+        long fim = System.nanoTime();
+        double tempoExecucao = (fim - inicio) / 1_000_000.0;
+    
+        for (int i = 0; i < limite; i++) {
+            lista.get(i).imprimir();
+        }
+    
+        BufferedWriter bw = new BufferedWriter(new FileWriter("846431_quicksort.txt"));
+        bw.write("846431\t" + comparacoes + "\t" + movimentacoes + "\t" + String.format("%.2f", tempoExecucao));
+        bw.close();
     }
 }

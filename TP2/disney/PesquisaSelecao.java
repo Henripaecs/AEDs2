@@ -3,14 +3,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Scanner;
 
-public class Show implements Cloneable {
+class Show {
     private String show_id;
     private String type;
     private String title;
@@ -90,8 +89,8 @@ public class Show implements Cloneable {
         return new Show(show_id, type, title, director, cast.clone(), country, date_added, release_year, rating, duration, listed_in.clone());
     }
 
-    // imprimir
-    public void imprimir() {
+     // imprimir
+     public void imprimir() {
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
         String dataStr = (date_added != null) ? sdf.format(date_added) : "NaN";
     
@@ -135,30 +134,62 @@ public class Show implements Cloneable {
         this.duration = campos[9];
         this.listed_in = campos[10].equals("NaN") ? new String[]{"NaN"} : campos[10].split(", ");
     }
-    public static void main(String[] args) throws IOException {
-        Map<String, String> dadosCSV = new HashMap<>();
-        //BufferedReader br = new BufferedReader(new FileReader("./disneyplus.csv"));//maquina
-        BufferedReader br = new BufferedReader(new FileReader("/tmp/disneyplus.csv"));//verde 
+}
 
-        br.readLine();
-
-        String linha;
-        while ((linha = br.readLine()) != null) {
-            String id = linha.split(",")[0];
-            dadosCSV.put(id, linha);
+public class PesquisaSelecao {
+    public static void selectionSortTitle(ArrayList<Show> lista) {
+        int n = lista.size();
+        for (int i = 0; i < n - 1; i++) {
+            int menor = i;
+            for (int j = i + 1; j < n; j++) {
+                if (lista.get(j).getTitle().compareToIgnoreCase(lista.get(menor).getTitle()) < 0) {
+                    menor = j;
+                }
+            }
+            if (menor != i) {
+                Show temp = lista.get(i).clone();
+                lista.set(i, lista.get(menor).clone());
+                lista.set(menor, temp.clone());
+            }
         }
-        br.close();
-
+    }
+    public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);
-        String entrada;
 
-        while (!(entrada = sc.nextLine()).equals("FIM")) {
-            if (dadosCSV.containsKey(entrada)) {
-                Show show = new Show();
-                show.ler(dadosCSV.get(entrada));
-                show.imprimir();
+        String entrada;
+        while (true) {
+            entrada = sc.nextLine();
+            if (entrada.equals("FIM")) {
+                break;
+            }
+        }
+
+        BufferedReader br;
+        while (true) {
+            entrada = sc.nextLine();
+            if (entrada.equals("FIM")) {
+                break; // finalizar programa
+            }
+
+            boolean encontrado = false;
+            //br = new BufferedReader(new FileReader("./disneyplus.csv")); //maquina
+            br = new BufferedReader(new FileReader("/tmp/disneyplus.csv")); //verde
+            br.readLine(); 
+
+            String linha;
+            while ((linha = br.readLine()) != null) {
+                String id = linha.split(",")[0]; 
+                if (id.equals(entrada)) {
+                    encontrado = true;
+                    break;
+                }
+            }
+            br.close();
+
+            if (encontrado) {
+                System.out.println("SIM");
             } else {
-                System.out.println("=> NaN ## NaN ## NaN ## NaN ## [NaN] ## NaN ## NaN ## -1 ## NaN ## NaN ## [NaN] ##");
+                System.out.println("NAO");
             }
         }
 
