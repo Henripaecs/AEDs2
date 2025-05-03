@@ -138,6 +138,10 @@ class Show {
         this.duration = campos[9];
         this.listed_in = campos[10].equals("NaN") ? new String[]{"NaN"} : campos[10].split(", ");
     }
+    public String getTituloNormalizado() {
+        return title == null ? "nan" : title.replaceAll("\"", "").trim().toLowerCase();
+    }
+    
 }
 public class Selecao {
     public static void main(String[] args) throws IOException {
@@ -173,11 +177,11 @@ public class Selecao {
         long inicio = System.nanoTime();
 
         //Selection Sort
-        for (int i = 0; i < lista.size() - 1; i++) {
+        int n = lista.size();
+        for (int i = 0; i < n - 1; i++) {
             int menor = i;
-            for (int j = i + 1; j < lista.size(); j++) {
-                comparacoes++;
-                if (lista.get(j).getTitle().compareTo(lista.get(menor).getTitle()) < 0) {
+            for (int j = i + 1; j < n; j++) {
+                if (lista.get(j).getTituloNormalizado().compareTo(lista.get(menor).getTituloNormalizado()) < 0) {
                     menor = j;
                 }
             }
@@ -185,10 +189,8 @@ public class Selecao {
                 Show temp = lista.get(i).clone();
                 lista.set(i, lista.get(menor).clone());
                 lista.set(menor, temp.clone());
-                movimentacoes += 3; //3 movis
             }
         }
-
         long fim = System.nanoTime();
         double tempoExecucao = (fim - inicio) / 1_000_000.0;
 

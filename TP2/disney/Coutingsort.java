@@ -138,6 +138,11 @@ class Show {
         this.duration = campos[9];
         this.listed_in = campos[10].equals("NaN") ? new String[]{"NaN"} : campos[10].split(", ");
     }
+
+    public String getTituloNormalizado() {
+        return title.replaceAll("\"", "").trim().toLowerCase();
+    }
+    
 }
 
 public class Coutingsort{
@@ -169,8 +174,9 @@ public class Coutingsort{
             if (!bucket.isEmpty()) {
                 bucket.sort((a, b) -> {
                     comparacoes[0]++;
-                    return a.getTitle().compareTo(b.getTitle());
+                    return a.getTituloNormalizado().compareTo(b.getTituloNormalizado());
                 });
+                
     
                 for (Show s : bucket) {
                     lista.add(s);

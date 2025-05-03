@@ -134,24 +134,27 @@ class Show {
         this.duration = campos[9];
         this.listed_in = campos[10].equals("NaN") ? new String[]{"NaN"} : campos[10].split(", ");
     }
+    public String getTituloNormalizado() {
+        return title == null ? "nan" : title.replaceAll("\"", "").trim().toLowerCase();
+    }
 }
 
 public class PesquisaSequencial {
     public static void selectionSortTitle(ArrayList<Show> lista) {
         int n = lista.size();
-        for (int i = 0; i < n - 1; i++) {
-            int menor = i;
-            for (int j = i + 1; j < n; j++) {
-                if (lista.get(j).getTitle().compareToIgnoreCase(lista.get(menor).getTitle()) < 0) {
-                    menor = j;
-                }
-            }
-            if (menor != i) {
-                Show temp = lista.get(i).clone();
-                lista.set(i, lista.get(menor).clone());
-                lista.set(menor, temp.clone());
+    for (int i = 0; i < n - 1; i++) {
+        int menor = i;
+        for (int j = i + 1; j < n; j++) {
+            if (lista.get(j).getTituloNormalizado().compareTo(lista.get(menor).getTituloNormalizado()) < 0) {
+                menor = j;
             }
         }
+        if (menor != i) {
+            Show temp = lista.get(i).clone();
+            lista.set(i, lista.get(menor).clone());
+            lista.set(menor, temp.clone());
+        }
+    }
     }
     public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);

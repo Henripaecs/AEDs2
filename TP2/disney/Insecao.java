@@ -138,6 +138,15 @@ class Show {
         this.duration = campos[9];
         this.listed_in = campos[10].equals("NaN") ? new String[]{"NaN"} : campos[10].split(", ");
     }
+
+    public String getTituloNormalizado() {
+        return title == null ? "nan" : title.replaceAll("\"", "").trim().toLowerCase();
+    }
+    
+    public String getTipoNormalizado() {
+        return type == null ? "nan" : type.replaceAll("\"", "").trim().toLowerCase();
+    }
+    
 }
 
 public class Insecao {
@@ -180,10 +189,11 @@ public class Insecao {
         
             comparacoes++;
             while (j >= 0 && (
-                    lista.get(j).getType().compareTo(chave.getType()) > 0 ||
-                    (lista.get(j).getType().compareTo(chave.getType()) == 0 &&
-                     lista.get(j).getTitle().compareTo(chave.getTitle()) > 0)
-                  )) 
+                lista.get(j).getTipoNormalizado().compareTo(chave.getTipoNormalizado()) > 0 ||
+                (lista.get(j).getTipoNormalizado().compareTo(chave.getTipoNormalizado()) == 0 &&
+                 lista.get(j).getTituloNormalizado().compareTo(chave.getTituloNormalizado()) > 0)
+            )) 
+ 
             {
                 comparacoes++;
                 lista.set(j + 1, lista.get(j).clone());

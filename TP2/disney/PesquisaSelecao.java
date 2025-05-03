@@ -133,7 +133,10 @@ class Show {
         this.rating = campos[8];
         this.duration = campos[9];
         this.listed_in = campos[10].equals("NaN") ? new String[]{"NaN"} : campos[10].split(", ");
-    }
+    } 
+    public String getTituloNormalizado() {
+        return title == null ? "nan" : title.replaceAll("\"", "").trim().toLowerCase();
+    } 
 }
 
 public class PesquisaSelecao {
@@ -142,7 +145,7 @@ public class PesquisaSelecao {
         for (int i = 0; i < n - 1; i++) {
             int menor = i;
             for (int j = i + 1; j < n; j++) {
-                if (lista.get(j).getTitle().compareToIgnoreCase(lista.get(menor).getTitle()) < 0) {
+                if (lista.get(j).getTituloNormalizado().compareTo(lista.get(menor).getTituloNormalizado()) < 0) {
                     menor = j;
                 }
             }

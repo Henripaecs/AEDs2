@@ -138,6 +138,15 @@ class Show {
         this.duration = campos[9];
         this.listed_in = campos[10].equals("NaN") ? new String[]{"NaN"} : campos[10].split(", ");
     }
+
+    public String getTituloNormalizado() {
+        return title.replaceAll("\"", "").trim().toLowerCase();
+    }
+    
+    public String getDiretorNormalizado() {
+        return director.replaceAll("\"", "").trim().toLowerCase();
+    }
+    
 }
 
 public class Heapsort {
@@ -188,12 +197,13 @@ public class Heapsort {
     }
 
     private static int compare(Show a, Show b) {
-        int cmp = a.getDirector().compareTo(b.getDirector());
+        int cmp = a.getDiretorNormalizado().compareTo(b.getDiretorNormalizado());
         if (cmp != 0) {
             return cmp;
         }
-        return a.getTitle().compareTo(b.getTitle());
+        return a.getTituloNormalizado().compareTo(b.getTituloNormalizado());
     }
+    
 
     public static void main(String[] args) throws IOException {
         ArrayList<Show> lista = new ArrayList<>();
