@@ -93,6 +93,55 @@ public class Matriz{
         }
         return result;
     }
+
+    public void removermatrizmeio(){
+        int colunameio = coluna / 2;
+        
+        Celula atual = inicio;
+
+        for (int j = 0; j < colunameio; j++){//ir até a  coluna que desejo retirar;
+            atual = atual.dir;
+        }
+
+        for (int i = 0; i < linha; i++){
+            Celula temp = atual;
+            if(temp.esq != null) temp.esq.dir = temp.dir;
+            if(temp.dir != null) temp.dir.esq = temp.esq;
+            
+            atual = temp.inf;
+
+            temp.esq = null;
+            temp.dir = null;
+            temp.sup = null;
+            temp.inf = null;
+        }
+        coluna--;
+    }
+
+    public void removermatrizlinha(){
+        int linhameio = linha/2;
+        Celula atual = inicio;
+
+        for (int i = 0; i < linhameio; i++){
+            atual = atual.inf;
+        }
+
+        for (int j = 0; j < coluna; j++){
+            Celula temp = atual;
+
+            if(temp.sup != null) temp.sup.inf = temp.inf;
+            if(temp.inf != null) temp.inf.sup = temp.sup;
+
+            atual = temp.dir;
+
+            temp.esq = null;
+            temp.dir = null;
+            temp.sup = null;
+            temp.inf = null;
+        }
+        linha--;
+    }
+
     public void diagonalPrinciapl(){
         if (linha != coluna){
             return;
@@ -161,9 +210,11 @@ public class Matriz{
     }
     public static void main(String[] args) {
         Matriz m = new Matriz(3, 3);
-        Matriz x = new Matriz(3, 3);
+        Matriz x = new Matriz(3, 3);        
+        Matriz r = new Matriz(3,3);
         m.preencherSequencial();
         x.preencherSequencial();
+        r.preencherSequencial();
         m.mostrar();
         x.mostrar();
         Matriz soma = m.somar(x);
@@ -171,6 +222,13 @@ public class Matriz{
         soma.mostrar();
         m.diagonalPrinciapl();
         m.diagonalSeucndaria();
+        System.out.println("Sem a coluna do meio");
+        r.removermatrizmeio();;
+        r.mostrar();
+        System.out.println("Sem a linha do meio");
+        r.removermatrizlinha();
+        r.mostrar();
+
     }
 }
 
