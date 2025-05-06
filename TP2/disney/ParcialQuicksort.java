@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -88,30 +87,29 @@ class Show {
     public String[] getListed_in() { return listed_in; }
     public void setListed_in(String[] listed_in) { this.listed_in = listed_in; }
 
-    //  clone
+    // clone
     public Show clone() {
         return new Show(show_id, type, title, director, cast.clone(), country, date_added, release_year, rating, duration, listed_in.clone());
     }
 
-     // imprimir
-     public void imprimir() {
-        SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+    // imprimir
+    public void imprimir() {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy");
         String dataStr = (date_added != null) ? sdf.format(date_added) : "NaN";
-    
+
         String[] castOrdenado = cast.clone();
         Arrays.sort(castOrdenado, String.CASE_INSENSITIVE_ORDER);
-    
+
         String titleLimpo = title.replaceAll("\"", "");
 
         for (int i = 0; i < castOrdenado.length; i++){
             castOrdenado[i] = castOrdenado[i].replaceAll("\"", "");
-        } 
-    
+        }
+
         System.out.println("=> " + show_id + " ## " + titleLimpo + " ## " + type + " ## " + director +
                 " ## " + Arrays.toString(castOrdenado) + " ## " + country + " ## " + dataStr + " ## " +
                 release_year + " ## " + rating + " ## " + duration + " ## " + Arrays.toString(listed_in) + " ##");
     }
-    
 
     public void ler(String linha) {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
@@ -141,20 +139,24 @@ class Show {
 }
 
 public class ParcialQuicksort {
-    private static void quickSort(ArrayList<Show> lista, int esq, int dir, int comparacoes[], int movimentacoes[]) {
-        if (esq < dir) {
-            int pivo = partition(lista, esq, dir, comparacoes, movimentacoes);
-            quickSort(lista, esq, pivo - 1, comparacoes, movimentacoes);
-            quickSort(lista, pivo + 1, dir, comparacoes, movimentacoes);
+
+    private static int comparar(Show a, Show b, int[] comparacoes) {
+        comparacoes[0]++;
+        if (a.getDate_added() == null && b.getDate_added() != null) return -1;
+        if (a.getDate_added() != null && b.getDate_added() == null) return 1;
+        if (a.getDate_added() == null && b.getDate_added() == null) {
+            return a.getTitle().compareToIgnoreCase(b.getTitle());
         }
+        int cmp = a.getDate_added().compareTo(b.getDate_added());
+        if (cmp != 0) return cmp;
+        return a.getTitle().compareToIgnoreCase(b.getTitle());
     }
-    
-    private static int partition(ArrayList<Show> lista, int esq, int dir, int comparacoes[], int movimentacoes[]) {
+
+    private static int partition(ArrayList<Show> lista, int esq, int dir, int[] comparacoes, int[] movimentacoes) {
         Show pivo = lista.get(dir).clone();
         int i = esq - 1;
         for (int j = esq; j < dir; j++) {
-            comparacoes[0]++;
-            if (lista.get(j).getTitle().compareTo(pivo.getTitle()) <= 0) {
+            if (comparar(lista.get(j), pivo, comparacoes) <= 0) {
                 i++;
                 Show temp = lista.get(i).clone();
                 lista.set(i, lista.get(j).clone());
@@ -168,23 +170,30 @@ public class ParcialQuicksort {
         movimentacoes[0] += 3;
         return i + 1;
     }
+
+    private static void quickSort(ArrayList<Show> lista, int esq, int dir, int[] comparacoes, int[] movimentacoes) {
+        if (esq < dir) {
+            int pivo = partition(lista, esq, dir, comparacoes, movimentacoes);
+            quickSort(lista, esq, pivo - 1, comparacoes, movimentacoes);
+            quickSort(lista, pivo + 1, dir, comparacoes, movimentacoes);
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         ArrayList<Show> lista = new ArrayList<>();
         Map<String, String> dadosCSV = new HashMap<>();
         Scanner sc = new Scanner(System.in);
-    
-        //BufferedReader br = new BufferedReader(new FileReader("./disneyplus.csv")); //maquina
-        BufferedReader br = new BufferedReader(new FileReader("/tmp/disneyplus.csv")); //verde
-    
-        br.readLine(); 
+
+        BufferedReader br = new BufferedReader(new FileReader("/tmp/disneyplus.csv")); // Ajuste o caminho conforme necessário
+        br.readLine();
         String linha;
-        
+
         while ((linha = br.readLine()) != null) {
             String id = linha.split(",")[0];
             dadosCSV.put(id, linha);
         }
         br.close();
-    
+
         String entrada;
         while (!(entrada = sc.nextLine()).equals("FIM")) {
             if (dadosCSV.containsKey(entrada)) {
@@ -194,40 +203,20 @@ public class ParcialQuicksort {
             }
         }
         sc.close();
-    
-        int comparacoes = 0;
-        int movimentacoes = 0;
-    
-        quickSort(lista, comparacoes, movimentacoes, null, null);
+
+        int[] comparacoes = {0};
+        int[] movimentacoes = {0};
 
         long inicio = System.nanoTime();
-    
-        int limite = Math.min(10, lista.size());
-        for (int i = 0; i < limite; i++) {
-            int menor = i;
-            for (int j = i + 1; j < lista.size(); j++) {
-                comparacoes++;
-                if (lista.get(j).getTitle().compareTo(lista.get(menor).getTitle()) < 0) {
-                    menor = j;
-                }
-            }
-            if (menor != i) {
-                Show temp = lista.get(i).clone();
-                lista.set(i, lista.get(menor).clone());
-                lista.set(menor, temp.clone());
-                movimentacoes += 3; //3 movi
-            }
-        }
-    
+        quickSort(lista, 0, lista.size() - 1, comparacoes, movimentacoes);
         long fim = System.nanoTime();
-        double tempoExecucao = (fim - inicio) / 1_000_000.0;
-    
-        for (int i = 0; i < limite; i++) {
+
+        for (int i = 0; i < Math.min(10, lista.size()); i++) {
             lista.get(i).imprimir();
         }
-    
+
         BufferedWriter bw = new BufferedWriter(new FileWriter("846431_quicksort.txt"));
-        bw.write("846431\t" + comparacoes + "\t" + movimentacoes + "\t" + String.format("%.2f", tempoExecucao));
+        bw.write("846431\t" + comparacoes[0] + "\t" + movimentacoes[0] + "\t" + String.format("%.2f", (fim - inicio) / 1_000_000.0));
         bw.close();
     }
 }
