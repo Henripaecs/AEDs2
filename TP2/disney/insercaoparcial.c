@@ -4,7 +4,7 @@
 #include <time.h>
 
 #define MAX_SHOWS 1500
-#define MAX_STR 216
+#define MAX_STR 256
 #define TAMANHO_PARIAL 10
 
 typedef struct {
@@ -63,9 +63,8 @@ void lerShow(Show *s, char *linha) {
     }
 }
 
-
 void imprimirShow(Show *s) {
-    printf("=> %s ## %s ## %s ## %s ## %s ## %s ## %d ## %s ## %s ## %s ##\n",
+    printf("=> %s ## %s ## %s ## %s ## [%s] ## %s ## %d ## %s ## %s ## %s ##\n",
            s->show_id, s->title, s->type, s->director, s->country,
            s->date_added, s->release_year, s->rating, s->duration, s->listed_in);
 }
@@ -74,7 +73,7 @@ void normalizar(char *destino, const char *origem) {
     int j = 0;
     for (int i = 0; origem[i] != '\0'; i++) {
         if (origem[i] != '"' && origem[i] != ' ') {
-            destino[j++] = tolower(origem[i]);
+            destino[j++] = tolower(origem[i]); // Transforma tudo para minúsculo
         }
     }
     destino[j] = '\0';
@@ -102,6 +101,7 @@ void insertionSort(Show arr[], int n, int *comparacoes, int *movimentacoes) {
             normalizar(normChaveTitle, chave.title);
             normalizar(normArrTitle, arr[j].title);
             
+            // Ordenação do título em ordem alfabética
             while (j >= 0 && strcmp(normChaveTitle, normArrTitle) < 0) {
                 arr[j + 1] = arr[j];
                 (*movimentacoes)++;
@@ -173,14 +173,19 @@ int main() {
     int comparacoes = 0, movimentacoes = 0;
     clock_t inicio = clock();
 
-    insertionSort(lista, tamLista, &comparacoes, &movimentacoes);
+    // Ordena apenas os primeiros 10 elementos
+    insertionSort(lista, TAMANHO_PARIAL, &comparacoes, &movimentacoes);
 
     clock_t fim = clock();
     double tempoExecucao = (double)(fim - inicio) / CLOCKS_PER_SEC * 1000.0;
 
-    // Exibe apenas os 10 primeiros elementos
+    // Exibe apenas os 10 primeiros elementos com diretores corretamente
     for (int i = 0; i < TAMANHO_PARIAL && i < tamLista; i++) {
-        imprimirShow(&lista[i]);
+        // Separa os diretores por vírgula e espaço
+        char *diretores = lista[i].director;
+        printf("=> %s ## %s ## %s ## %s ## [%s] ## %s ## %d ## %s ## %s ## %s ##\n",
+               lista[i].show_id, lista[i].title, lista[i].type, diretores, lista[i].country,
+               lista[i].date_added, lista[i].release_year, lista[i].rating, lista[i].duration, lista[i].listed_in);
     }
 
     FILE *log = fopen("846431_insertionSort.txt", "w");
