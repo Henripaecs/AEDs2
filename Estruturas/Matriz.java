@@ -117,6 +117,31 @@ public class Matriz{
         }
         coluna--;
     }
+    public void menorpar(){
+        Celula temp = inicio;
+        int menor = Integer.MAX_VALUE;
+        for (int i = 0 ; i < linha; i++){
+            for (int j = 0; j < coluna; j++){
+                if( i % 2 == 0 && j % 2 == 0){
+                    if (menor > temp.elemento){
+                        menor = temp.elemento;
+                    }
+                }
+                if (temp.dir != null){
+                    temp = temp.dir;
+                }else{
+                    break;
+                }            
+            }
+            if (temp.inf != null){
+                temp = temp.inf;
+            }else{
+                break;
+            }
+
+        }
+        System.out.println(menor + " ");
+    }
 
     public void removermatrizlinha(){
         int linhameio = linha/2;
@@ -211,7 +236,7 @@ public class Matriz{
     public static void main(String[] args) {
         Matriz m = new Matriz(3, 3);
         Matriz x = new Matriz(3, 3);        
-        Matriz r = new Matriz(3,3);
+        Matriz r = new Matriz(3,3);        
         m.preencherSequencial();
         x.preencherSequencial();
         r.preencherSequencial();
@@ -228,6 +253,9 @@ public class Matriz{
         System.out.println("Sem a linha do meio");
         r.removermatrizlinha();
         r.mostrar();
+        System.out.println("MENOR PAR");
+        m.menorpar();
+        
 
     }
 }
