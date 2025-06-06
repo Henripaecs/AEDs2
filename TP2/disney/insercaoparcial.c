@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
 
 #define MAX_SHOWS 1500
@@ -12,6 +13,7 @@ typedef struct {
     char type[MAX_STR];
     char title[MAX_STR];
     char director[MAX_STR];
+    char cast[MAX_STR];
     char country[MAX_STR];
     char date_added[MAX_STR];
     int release_year;
@@ -20,22 +22,78 @@ typedef struct {
     char listed_in[MAX_STR];
 } Show;
 
+void ordenarcast(char *campo) {
+    char *cast[30];
+    int total = 0;
+
+    char *token = strtok(campo, ",");
+    while (token && total < 30) {
+        while (*token == ' ') token++;
+        cast[total++] = strdup(token);
+        token = strtok(NULL, ",");
+    }
+
+    for (int i = 0; i < total - 1; i++) {
+        for (int j = i + 1; j < total; j++) {
+            if (strcmp(cast[i], cast[j]) > 0) {
+                char *tmp = cast[i];
+                cast[i] = cast[j];
+                cast[j] = tmp;
+            }
+        }
+    }
+
+    campo[0] = '\0';
+    for (int i = 0; i < total; i++) {
+        strcat(campo, cast[i]);
+        if (i < total - 1) strcat(campo, ", ");
+        free(cast[i]);
+    }
+}
+
+void ordenarCategorias(char *campo) {
+    char *categorias[30];
+    int total = 0;
+
+    char *token = strtok(campo, ",");
+    while (token && total < 30) {
+        while (*token == ' ') token++;
+        categorias[total++] = strdup(token);
+        token = strtok(NULL, ",");
+    }
+
+    for (int i = 0; i < total - 1; i++) {
+        for (int j = i + 1; j < total; j++) {
+            if (strcmp(categorias[i], categorias[j]) > 0) {
+                char *tmp = categorias[i];
+                categorias[i] = categorias[j];
+                categorias[j] = tmp;
+            }
+        }
+    }
+
+    campo[0] = '\0';
+    for (int i = 0; i < total; i++) {
+        strcat(campo, categorias[i]);
+        if (i < total - 1) strcat(campo, ", ");
+        free(categorias[i]);
+    }
+}
+
 void lerShow(Show *s, char *linha) {
-    char *campos[12];
+    char *campos[11];
     int campoIndex = 0;
-    int i = 0;
     int entreAspas = 0;
-    char *ptr = linha;
     char buffer[MAX_STR];
     int bufIndex = 0;
+    char *ptr = linha;
 
-    while (*ptr != '\0' && campoIndex < 12) {
+    while (*ptr != '\0' && campoIndex < 11) {
         if (*ptr == '"') {
-            entreAspas = !entreAspas; // toggle
+            entreAspas = !entreAspas;
         } else if (*ptr == ',' && !entreAspas) {
             buffer[bufIndex] = '\0';
-            campos[campoIndex] = strdup(buffer);
-            campoIndex++;
+            campos[campoIndex++] = strdup(buffer);
             bufIndex = 0;
         } else {
             buffer[bufIndex++] = *ptr;
@@ -44,36 +102,57 @@ void lerShow(Show *s, char *linha) {
     }
 
     buffer[bufIndex] = '\0';
-    campos[campoIndex] = strdup(buffer); // último campo
+    if (campoIndex < 11) {
+        campos[campoIndex++] = strdup(buffer);
+    }
 
-    // preenche os campos do Show
+    if (campoIndex != 11) {
+        fprintf(stderr, "Erro: linha com %d campos (esperado: 11):\n%s\n", campoIndex, linha);
+        for (int i = 0; i < campoIndex; i++) free(campos[i]);
+        memset(s, 0, sizeof(Show));
+        return;
+    }
+
     strcpy(s->show_id, campos[0]);
     strcpy(s->type, campos[1]);
     strcpy(s->title, campos[2]);
     strcpy(s->director, campos[3]);
-    strcpy(s->country, campos[4]);
-    strcpy(s->date_added, campos[5]);
-    s->release_year = atoi(campos[6]);
-    strcpy(s->rating, campos[7]);
-    strcpy(s->duration, campos[8]);
-    strcpy(s->listed_in, campos[9]);
-    
-    for (int j = 0; j <= campoIndex; j++) {
+    strcpy(s->cast, campos[4]);
+    ordenarcast(s->cast);
+    strcpy(s->country, campos[5]);
+    strcpy(s->date_added, campos[6]);
+    s->release_year = atoi(campos[7]);
+    strcpy(s->rating, campos[8]);
+    strcpy(s->duration, campos[9]);
+    strcpy(s->listed_in, campos[10]);
+    ordenarCategorias(s->listed_in);
+
+    for (int j = 0; j < 11; j++) {
         free(campos[j]);
     }
 }
 
 void imprimirShow(Show *s) {
-    printf("=> %s ## %s ## %s ## %s ## [%s] ## %s ## %d ## %s ## %s ## %s ##\n",
-           s->show_id, s->title, s->type, s->director, s->country,
-           s->date_added, s->release_year, s->rating, s->duration, s->listed_in);
+    printf("=> %s ## %s ## %s ## %s ## [%s] ## %s ## %s ## %d ## %s ## %s ## [%s] ##\n",
+           s->show_id,      // ID
+           s->title,        // Título
+           s->type,         // Tipo
+           s->director,     // Diretores
+           s->cast,         // Elenco (ordenado)
+           s->country,      // País (ordenado)
+           s->date_added,   // Data de adição
+           s->release_year, // Ano
+           s->rating,       // Classificação
+           s->duration,     // Duração
+           s->listed_in     // Categorias (ordenadas)
+    );
 }
 
 void normalizar(char *destino, const char *origem) {
     int j = 0;
     for (int i = 0; origem[i] != '\0'; i++) {
-        if (origem[i] != '"' && origem[i] != ' ') {
-            destino[j++] = tolower(origem[i]); // Transforma tudo para minúsculo
+        if (origem[i] != '"') {
+            destino[j++] = tolower(origem[i]);
         }
     }
     destino[j] = '\0';
@@ -83,35 +162,31 @@ void insertionSort(Show arr[], int n, int *comparacoes, int *movimentacoes) {
     for (int i = 1; i < n; i++) {
         Show chave = arr[i];
         int j = i - 1;
-        
-        // Compara o tipo
-        char normChaveType[MAX_STR], normArrType[MAX_STR];
-        normalizar(normChaveType, chave.type);
-        normalizar(normArrType, arr[j].type);
 
-        while (j >= 0 && strcmp(normChaveType, normArrType) < 0) {
-            arr[j + 1] = arr[j];
-            (*movimentacoes)++;
-            j--;
-        }
-        
-        // Caso de empate no tipo, compara pelo título
-        if (strcmp(normChaveType, normArrType) == 0) {
+        while (j >= 0) {
+            char normChaveType[MAX_STR], normArrType[MAX_STR];
             char normChaveTitle[MAX_STR], normArrTitle[MAX_STR];
+
+            normalizar(normChaveType, chave.type);
+            normalizar(normArrType, arr[j].type);
             normalizar(normChaveTitle, chave.title);
             normalizar(normArrTitle, arr[j].title);
-            
-            // Ordenação do título em ordem alfabética
-            while (j >= 0 && strcmp(normChaveTitle, normArrTitle) < 0) {
+
+            (*comparacoes)++;
+            int cmpType = strcmp(normChaveType, normArrType);
+            int cmpTitle = strcmp(normChaveTitle, normArrTitle);
+
+            if (cmpType < 0 || (cmpType == 0 && cmpTitle < 0)) {
                 arr[j + 1] = arr[j];
                 (*movimentacoes)++;
                 j--;
+            } else {
+                break;
             }
         }
-        
+
         arr[j + 1] = chave;
         (*movimentacoes)++;
-        (*comparacoes)++;
     }
 }
 
@@ -142,12 +217,14 @@ int main() {
     int totalShows = 0;
     char linha[1024];
 
-    fgets(linha, sizeof(linha), arquivo); 
+    fgets(linha, sizeof(linha), arquivo); // pula o cabeçalho
 
     while (fgets(linha, sizeof(linha), arquivo) && totalShows < MAX_SHOWS) {
-        linha[strcspn(linha, "\n")] = 0; 
+        linha[strcspn(linha, "\n")] = 0;
         lerShow(&shows[totalShows], linha);
-        totalShows++;
+        if (shows[totalShows].show_id[0] != '\0') {
+            totalShows++;
+        }
     }
 
     fclose(arquivo);
@@ -173,19 +250,13 @@ int main() {
     int comparacoes = 0, movimentacoes = 0;
     clock_t inicio = clock();
 
-    // Ordena apenas os primeiros 10 elementos
-    insertionSort(lista, TAMANHO_PARIAL, &comparacoes, &movimentacoes);
+    insertionSort(lista, tamLista, &comparacoes, &movimentacoes);
 
     clock_t fim = clock();
     double tempoExecucao = (double)(fim - inicio) / CLOCKS_PER_SEC * 1000.0;
 
-    // Exibe apenas os 10 primeiros elementos com diretores corretamente
     for (int i = 0; i < TAMANHO_PARIAL && i < tamLista; i++) {
-        // Separa os diretores por vírgula e espaço
-        char *diretores = lista[i].director;
-        printf("=> %s ## %s ## %s ## %s ## [%s] ## %s ## %d ## %s ## %s ## %s ##\n",
-               lista[i].show_id, lista[i].title, lista[i].type, diretores, lista[i].country,
-               lista[i].date_added, lista[i].release_year, lista[i].rating, lista[i].duration, lista[i].listed_in);
+        imprimirShow(&lista[i]);
     }
 
     FILE *log = fopen("846431_insertionSort.txt", "w");
