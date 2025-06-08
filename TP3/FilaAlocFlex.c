@@ -25,7 +25,9 @@ int qtdBase = 0;
 
 typedef struct {
     Show array[TAM_FILA];
-    int primeiro, ultimo, tamanho;
+    int primeiro;
+    int ultimo;
+    int tamanho;
 } FilaCircular;
 
 void iniciarFila(FilaCircular *f) {
@@ -60,9 +62,8 @@ Show removerFila(FilaCircular *f, int imprimir) {
 void imprimirMedia(FilaCircular *f) {
     int soma = 0, count = 0;
     for (int i = 0, idx = f->primeiro; i < f->tamanho; i++, idx = (idx + 1) % TAM_FILA) {
-        int ano = f->array[idx].release_year;
-        if (ano > 0) {
-            soma += ano;
+        if (f->array[idx].release_year > 0) {
+            soma += f->array[idx].release_year;
             count++;
         }
     }
@@ -80,7 +81,6 @@ void inserirFila(FilaCircular *f, Show s) {
     imprimirMedia(f);
 }
 
-// Ordenação dos campos múltiplos
 int comparar(const void *a, const void *b) {
     const char *pa = *(const char **)a;
     const char *pb = *(const char **)b;
@@ -118,7 +118,6 @@ void ordenarCategorias(char *campo) {
     ordenarTokens(campo);
 }
 
-// Leitura e tratamento da linha do CSV
 void lerShow(Show *s, char *linha) {
     char *campos[11];
     int campoIndex = 0;
@@ -185,7 +184,7 @@ int main() {
     if (!fp) return 1;
 
     char linha[4096];
-    fgets(linha, sizeof(linha), fp); // pula cabeçalho
+    fgets(linha, sizeof(linha), fp); // pula o cabeçalho
 
     while (fgets(linha, sizeof(linha), fp)) {
         linha[strcspn(linha, "\n")] = 0;
