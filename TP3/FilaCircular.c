@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <math.h>
 
-#define MAX_SHOWS 1500
 #define MAX_STR 256
+#define MAX_BASE 1500
 #define TAM_FILA 5
+#define VALOR_PADRAO "NaN"
 
 typedef struct {
     char show_id[MAX_STR];
@@ -22,177 +22,169 @@ typedef struct {
     char listed_in[MAX_STR];
 } Show;
 
-Show* fila[TAM_FILA];
-int inicio = 0, fim = 0, tamanho = 0;
+Show base[MAX_BASE];
+int qtdBase = 0;
 
-void substituirPorNaN(char *str) {
-    if (str[0] == '\0') {
-        strcpy(str, "NaN");
-    }
+typedef struct {
+    Show array[TAM_FILA];
+    int primeiro, ultimo, tamanho;
+} FilaCircular;
+
+void iniciarFila(FilaCircular *f) {
+    f->primeiro = 0;
+    f->ultimo = 0;
+    f->tamanho = 0;
 }
 
-void ordenar(char *campo) {
-    char *tokens[30];
-    int total = 0;
-    char *token = strtok(campo, ",");
+int estaCheia(FilaCircular *f) {
+    return f->tamanho == TAM_FILA;
+}
 
-    while (token && total < 30) {
-        while (*token == ' ') token++;
-        tokens[total++] = strdup(token);
-        token = strtok(NULL, ",");
-    }
+int estaVazia(FilaCircular *f) {
+    return f->tamanho == 0;
+}
 
-    for (int i = 0; i < total - 1; i++) {
-        for (int j = i + 1; j < total; j++) {
-            if (strcmp(tokens[i], tokens[j]) > 0) {
-                char *tmp = tokens[i];
-                tokens[i] = tokens[j];
-                tokens[j] = tmp;
-            }
+void imprimirMedia(FilaCircular *f) {
+    int soma = 0, count = 0;
+    for (int i = 0, idx = f->primeiro; i < f->tamanho; i++, idx = (idx + 1) % TAM_FILA) {
+        int ano = f->array[idx].release_year;
+        if (ano > 0) {
+            soma += ano;
+            count++;
         }
     }
+    int media = (count > 0) ? (int)round((double)soma / count) : 0;
+    printf("[Media] %d\n", media);
+}
 
-    campo[0] = '\0';
-    for (int i = 0; i < total; i++) {
-        strcat(campo, tokens[i]);
-        if (i < total - 1) strcat(campo, ", ");
-        free(tokens[i]);
+void inserirFila(FilaCircular *f, Show s) {
+    if (estaCheia(f)) {
+        f->primeiro = (f->primeiro + 1) % TAM_FILA;
+        f->tamanho--;
+    }
+    f->array[f->ultimo] = s;
+    f->ultimo = (f->ultimo + 1) % TAM_FILA;
+    f->tamanho++;
+    imprimirMedia(f);
+}
+
+Show removerFila(FilaCircular *f, int imprimir) {
+    Show removido;
+    if (!estaVazia(f)) {
+        removido = f->array[f->primeiro];
+        f->primeiro = (f->primeiro + 1) % TAM_FILA;
+        f->tamanho--;
+        if (imprimir) {
+            printf("(R) %s\n", removido.title);
+        }
+    } else {
+        strcpy(removido.title, VALOR_PADRAO);
+    }
+    return removido;
+}
+
+void preencherCampo(char *dest, const char *valor) {
+    if (valor == NULL || strlen(valor) == 0) {
+        strcpy(dest, VALOR_PADRAO);
+    } else {
+        strcpy(dest, valor);
     }
 }
 
-void lerShow(Show *s, char *linha) {
-    char *campos[11];
-    int campoIndex = 0;
-    int entreAspas = 0;
-    char buffer[MAX_STR];
-    int bufIndex = 0;
-    char *ptr = linha;
-
-    while (*ptr != '\0' && campoIndex < 11) {
-        if (*ptr == '"') {
+void extrairCampos(char *linha, char campos[][MAX_STR]) {
+    int campo = 0, i = 0, j = 0, entreAspas = 0;
+    while (linha[i] != '\0' && campo < 11) {
+        if (linha[i] == '"') {
             entreAspas = !entreAspas;
-        } else if (*ptr == ',' && !entreAspas) {
-            buffer[bufIndex] = '\0';
-            campos[campoIndex++] = strdup(buffer);
-            bufIndex = 0;
+            i++;
+        } else if (linha[i] == ',' && !entreAspas) {
+            campos[campo][j] = '\0';
+            campo++; j = 0; i++;
         } else {
-            buffer[bufIndex++] = *ptr;
+            campos[campo][j++] = linha[i++];
         }
-        ptr++;
     }
-
-    buffer[bufIndex] = '\0';
-    if (campoIndex < 11) {
-        campos[campoIndex++] = strdup(buffer);
-    }
-
-    if (campoIndex != 11) {
-        memset(s, 0, sizeof(Show));
-        for (int i = 0; i < campoIndex; i++) free(campos[i]);
-        return;
-    }
-
-    strcpy(s->show_id, campos[0]);        substituirPorNaN(s->show_id);
-    strcpy(s->type, campos[1]);           substituirPorNaN(s->type);
-    strcpy(s->title, campos[2]);          substituirPorNaN(s->title);
-    strcpy(s->director, campos[3]);       substituirPorNaN(s->director);
-    strcpy(s->cast, campos[4]);           substituirPorNaN(s->cast); ordenar(s->cast);
-    strcpy(s->country, campos[5]);        substituirPorNaN(s->country);
-    strcpy(s->date_added, campos[6]);     substituirPorNaN(s->date_added);
-    s->release_year = atoi(campos[7]);    if (campos[7][0] == '\0') s->release_year = 0;
-    strcpy(s->rating, campos[8]);         substituirPorNaN(s->rating);
-    strcpy(s->duration, campos[9]);       substituirPorNaN(s->duration);
-    strcpy(s->listed_in, campos[10]);     substituirPorNaN(s->listed_in); ordenar(s->listed_in);
-
-    for (int i = 0; i < 11; i++) {
-        free(campos[i]);
-    }
+    campos[campo][j] = '\0';
 }
 
-void imprimirShow(Show *s, int index) {
-    char ano_str[10];
-    if (s->release_year == 0)
-        strcpy(ano_str, "NaN");
-    else
-        sprintf(ano_str, "%d", s->release_year);
+void lerShow(Show *reg, char *linha) {
+    char campos[11][MAX_STR] = {0};
+    extrairCampos(linha, campos);
 
-    printf("[%d] => %s ## %s ## %s ## %s ## [%s] ## %s ## %s ## %s ## %s ## %s ## [%s] ##\n",
-        index,
-        s->show_id,
-        s->title,
-        s->type,
-        s->director,
-        s->cast,
-        s->country,
-        s->date_added,
-        ano_str,
-        s->rating,
-        s->duration,
-        s->listed_in
-    );
+    preencherCampo(reg->show_id, campos[0]);
+    preencherCampo(reg->type, campos[1]);
+    preencherCampo(reg->title, campos[2]);
+    preencherCampo(reg->director, campos[3]);
+    preencherCampo(reg->cast, campos[4]);
+    preencherCampo(reg->country, campos[5]);
+    preencherCampo(reg->date_added, campos[6]);
+    reg->release_year = (strlen(campos[7]) > 0) ? atoi(campos[7]) : -1;
+    preencherCampo(reg->rating, campos[8]);
+    preencherCampo(reg->duration, campos[9]);
+    preencherCampo(reg->listed_in, campos[10]);
 }
 
-void enfileirar(Show* s) {
-    if (tamanho == TAM_FILA) {
-        Show* removido = fila[inicio];
-        printf("(R) %s\n", removido->title);
-        inicio = (inicio + 1) % TAM_FILA;
-        tamanho--;
+Show buscarShow(char *id) {
+    for (int i = 0; i < qtdBase; i++) {
+        if (strcmp(base[i].show_id, id) == 0)
+            return base[i];
     }
-    fila[fim] = s;
-    fim = (fim + 1) % TAM_FILA;
-    tamanho++;
+    Show vazio = {VALOR_PADRAO, VALOR_PADRAO, VALOR_PADRAO, VALOR_PADRAO, VALOR_PADRAO, VALOR_PADRAO, VALOR_PADRAO, -1, VALOR_PADRAO, VALOR_PADRAO, VALOR_PADRAO};
+    return vazio;
+}
 
-    // Calcular média
-    int soma = 0, cont = 0;
-    for (int i = 0, idx = inicio; i < tamanho; i++, idx = (idx + 1) % TAM_FILA) {
-        soma += fila[idx]->release_year;
-        cont++;
-    }
-
-    printf("[Media] %d\n", (int)round((float)soma / cont));
+void imprimirShowFormatado(Show *s, int idx) {
+    printf("[%d] => %s ## %s ## %s ## %s ## [%s] ## %s ## %d ## %s ## %s ## [%s] ##\n",
+           idx, s->show_id, s->title, s->type, s->director, s->cast, s->country,
+           s->release_year, s->rating, s->duration, s->listed_in);
 }
 
 int main() {
-    FILE *arquivo = fopen("/tmp/disneyplus.csv", "r");
-    if (!arquivo) {
-        perror("Erro ao abrir o CSV");
-        return 1;
-    }
+    FILE *fp = fopen("/tmp/disneyplus.csv", "r");
+    if (!fp) return 1;
 
-    Show shows[MAX_SHOWS];
-    int totalShows = 0;
-    char linha[1024];
-
-    fgets(linha, sizeof(linha), arquivo); // Cabeçalho
-
-    while (fgets(linha, sizeof(linha), arquivo) && totalShows < MAX_SHOWS) {
+    char linha[4096];
+    fgets(linha, sizeof(linha), fp);
+    while (fgets(linha, sizeof(linha), fp)) {
         linha[strcspn(linha, "\n")] = 0;
-        lerShow(&shows[totalShows], linha);
-        if (shows[totalShows].show_id[0] != '\0') {
-            totalShows++;
-        }
+        lerShow(&base[qtdBase++], linha);
     }
+    fclose(fp);
 
-    fclose(arquivo);
+    FilaCircular fila;
+    iniciarFila(&fila);
 
     char entrada[MAX_STR];
-    while (1) {
-        fgets(entrada, sizeof(entrada), stdin);
+    while (fgets(entrada, sizeof(entrada), stdin)) {
         entrada[strcspn(entrada, "\n")] = 0;
-        if (strcmp(entrada, "FIM") == 0)
-            break;
-
-        for (int i = 0; i < totalShows; i++) {
-            if (strcmp(shows[i].show_id, entrada) == 0) {
-                enfileirar(&shows[i]);
-                break;
-            }
+        if (strcmp(entrada, "FIM") == 0) break;
+        Show s = buscarShow(entrada);
+        if (strcmp(s.title, VALOR_PADRAO) != 0) {
+            inserirFila(&fila, s);
         }
     }
 
-    for (int i = 0, idx = inicio; i < tamanho; i++, idx = (idx + 1) % TAM_FILA) {
-        imprimirShow(fila[idx], i);
+    int n;
+    scanf("%d\n", &n);
+    for (int i = 0; i < n; i++) {
+        char comando[MAX_STR];
+        fgets(comando, sizeof(comando), stdin);
+        comando[strcspn(comando, "\n")] = 0;
+
+        if (comando[0] == 'I') {
+            char id[20];
+            sscanf(comando, "I %s", id);
+            Show s = buscarShow(id);
+            if (strcmp(s.title, VALOR_PADRAO) != 0) {
+                inserirFila(&fila, s);
+            }
+        } else if (comando[0] == 'R') {
+            removerFila(&fila, 1);
+        }
+    }
+
+    for (int i = 0, idx = fila.primeiro; i < fila.tamanho; i++, idx = (idx + 1) % TAM_FILA) {
+        imprimirShowFormatado(&fila.array[idx], i);
     }
 
     return 0;
