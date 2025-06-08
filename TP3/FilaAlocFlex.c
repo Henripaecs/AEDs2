@@ -67,7 +67,7 @@ void imprimirMedia(FilaCircular *f) {
             count++;
         }
     }
-    int media = (count > 0) ? (int)round((double)soma / count) : 0;
+    int media = (count > 0) ? (int)floor((double)soma / count) : 0;
     printf("[Media] %d\n", media);
 }
 
