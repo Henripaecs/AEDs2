@@ -20,11 +20,11 @@ typedef struct {
     char listed_in[MAX_STR];
 } Show;
 
-// Pilha de ponteiros
-Show* pilha[MAX_SHOWS];
+// Pilha com alocação sequencial
+Show pilha[MAX_SHOWS];
 int topo = 0;
 
-void empilhar(Show* s) {
+void empilhar(Show s) {
     if (topo < MAX_SHOWS) {
         pilha[topo++] = s;
     }
@@ -32,7 +32,7 @@ void empilhar(Show* s) {
 
 Show* desempilhar() {
     if (topo > 0) {
-        return pilha[--topo];
+        return &pilha[--topo];
     }
     return NULL;
 }
@@ -43,61 +43,32 @@ void substituirPorNaN(char *str) {
     }
 }
 
-void ordenarcast(char *campo) {
-    char *cast[30];
+void ordenarTokens(char *campo) {
+    char *itens[30];
     int total = 0;
     char *token = strtok(campo, ",");
 
     while (token && total < 30) {
         while (*token == ' ') token++;
-        cast[total++] = strdup(token);
+        itens[total++] = strdup(token);
         token = strtok(NULL, ",");
     }
 
     for (int i = 0; i < total - 1; i++) {
         for (int j = i + 1; j < total; j++) {
-            if (strcmp(cast[i], cast[j]) > 0) {
-                char *tmp = cast[i];
-                cast[i] = cast[j];
-                cast[j] = tmp;
+            if (strcmp(itens[i], itens[j]) > 0) {
+                char *tmp = itens[i];
+                itens[i] = itens[j];
+                itens[j] = tmp;
             }
         }
     }
 
     campo[0] = '\0';
     for (int i = 0; i < total; i++) {
-        strcat(campo, cast[i]);
+        strcat(campo, itens[i]);
         if (i < total - 1) strcat(campo, ", ");
-        free(cast[i]);
-    }
-}
-
-void ordenarCategorias(char *campo) {
-    char *categorias[30];
-    int total = 0;
-    char *token = strtok(campo, ",");
-
-    while (token && total < 30) {
-        while (*token == ' ') token++;
-        categorias[total++] = strdup(token);
-        token = strtok(NULL, ",");
-    }
-
-    for (int i = 0; i < total - 1; i++) {
-        for (int j = i + 1; j < total; j++) {
-            if (strcmp(categorias[i], categorias[j]) > 0) {
-                char *tmp = categorias[i];
-                categorias[i] = categorias[j];
-                categorias[j] = tmp;
-            }
-        }
-    }
-
-    campo[0] = '\0';
-    for (int i = 0; i < total; i++) {
-        strcat(campo, categorias[i]);
-        if (i < total - 1) strcat(campo, ", ");
-        free(categorias[i]);
+        free(itens[i]);
     }
 }
 
@@ -137,17 +108,15 @@ void lerShow(Show *s, char *linha) {
     strcpy(s->type, campos[1]);           substituirPorNaN(s->type);
     strcpy(s->title, campos[2]);          substituirPorNaN(s->title);
     strcpy(s->director, campos[3]);       substituirPorNaN(s->director);
-    strcpy(s->cast, campos[4]);           substituirPorNaN(s->cast); ordenarcast(s->cast);
+    strcpy(s->cast, campos[4]);           substituirPorNaN(s->cast); ordenarTokens(s->cast);
     strcpy(s->country, campos[5]);        substituirPorNaN(s->country);
     strcpy(s->date_added, campos[6]);     substituirPorNaN(s->date_added);
     s->release_year = atoi(campos[7]);    if (campos[7][0] == '\0') s->release_year = 0;
     strcpy(s->rating, campos[8]);         substituirPorNaN(s->rating);
     strcpy(s->duration, campos[9]);       substituirPorNaN(s->duration);
-    strcpy(s->listed_in, campos[10]);     substituirPorNaN(s->listed_in); ordenarCategorias(s->listed_in);
+    strcpy(s->listed_in, campos[10]);     substituirPorNaN(s->listed_in); ordenarTokens(s->listed_in);
 
-    for (int i = 0; i < 11; i++) {
-        free(campos[i]);
-    }
+    for (int i = 0; i < 11; i++) free(campos[i]);
 }
 
 void imprimirShow(Show *s, int pos) {
@@ -205,7 +174,7 @@ int main() {
 
         for (int i = 0; i < totalShows; i++) {
             if (strcmp(shows[i].show_id, entrada) == 0) {
-                empilhar(&shows[i]);
+                empilhar(shows[i]);  
                 break;
             }
         }
@@ -223,18 +192,20 @@ int main() {
             sscanf(comando + 2, "%s", id);
             for (int j = 0; j < totalShows; j++) {
                 if (strcmp(shows[j].show_id, id) == 0) {
-                    empilhar(&shows[j]);
+                    empilhar(shows[j]);  
                     break;
                 }
             }
         } else if (strcmp(comando, "R") == 0) {
             Show* removido = desempilhar();
-            if (removido) printf("(R) %s\n", removido->title);
+            if (removido) {
+                printf("(R) %s\n", removido->title);
+            }
         }
     }
 
     for (int i = topo - 1; i >= 0; i--) {
-        imprimirShow(pilha[i], i);
+        imprimirShow(&pilha[i], i);
     }
 
     return 0;

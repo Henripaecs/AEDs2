@@ -27,7 +27,6 @@ typedef struct No {
 
 No* inicio = NULL;
 
-// Funções auxiliares
 void substituirPorNaN(char *str) {
     if (str[0] == '\0') {
         strcpy(str, "NaN");
@@ -141,7 +140,6 @@ void lerShow(Show *s, char *linha) {
     }
 }
 
-// Operações com lista dinâmica
 void inserirInicio(Show* show) {
     No* novo = malloc(sizeof(No));
     novo->show = show;
@@ -255,7 +253,7 @@ int main() {
     int totalShows = 0;
     char linha[1024];
 
-    fgets(linha, sizeof(linha), arquivo); // Cabeçalho
+    fgets(linha, sizeof(linha), arquivo); 
 
     while (fgets(linha, sizeof(linha), arquivo) && totalShows < MAX_SHOWS) {
         linha[strcspn(linha, "\n")] = 0;
