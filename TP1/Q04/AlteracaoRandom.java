@@ -1,4 +1,4 @@
-package Q04;
+//package Q04;
 import java.util.Random;
 import java.util.Scanner;
 
