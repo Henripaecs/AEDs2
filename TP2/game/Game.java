@@ -27,15 +27,15 @@ public class Game implements Cloneable {
         this.releaseDate = null;
         this.estimatedOwners = "NaN";
         this.price = -1;
-        this.supportedLanguages = new String[]{"NaN"};
+        this.supportedLanguages = new String[0]; // Alterado para vazio
         this.metacriticScore = -1;
         this.userScore = -1;
         this.achievements = -1;
         this.publisher = "NaN";
         this.developer = "NaN";
-        this.categories = new String[]{"NaN"};
-        this.genres = new String[]{"NaN"};
-        this.tags = new String[]{"NaN"};
+        this.categories = new String[0]; // Alterado para vazio
+        this.genres = new String[0];     // Alterado para vazio
+        this.tags = new String[0];       // Alterado para vazio
     }
 
     // Clone
@@ -88,17 +88,19 @@ public class Game implements Cloneable {
 
         this.estimatedOwners = campos[3];
         this.price = campos[4].equals("NaN") ? -1 : Double.parseDouble(campos[4]);
-        this.supportedLanguages = campos[5].equals("NaN") ? new String[]{"NaN"} : campos[5]
+        this.supportedLanguages = campos[5].equals("NaN") ? new String[0] : campos[5] // Alterado
                 .replaceAll("\\[|\\]|'", "")
                 .split(",\\s*");
         this.metacriticScore = campos[6].equals("NaN") ? -1 : Integer.parseInt(campos[6]);
         this.userScore = campos[7].equals("NaN") ? -1 : Double.parseDouble(campos[7]);
         this.achievements = campos[8].equals("NaN") ? -1 : Integer.parseInt(campos[8]);
-        this.publisher = campos[9];
-        this.developer = campos[10];
-        this.categories = campos[11].equals("NaN") ? new String[]{"NaN"} : campos[11].split(",");
-        this.genres = campos[12].equals("NaN") ? new String[]{"NaN"} : campos[12].split(",");
-        this.tags = campos[13].equals("NaN") ? new String[]{"NaN"} : campos[13].split(",");
+        this.publisher = campos[9].replaceAll(",(?![\\s])", ", ");
+        this.developer = campos[10].replaceAll(",(?![\\s])", ", ");
+        
+        // CORREÇÃO APLICADA AQUI
+        this.categories = campos[11].equals("NaN") ? new String[0] : Arrays.stream(campos[11].split(",")).map(String::trim).toArray(String[]::new);
+        this.genres = campos[12].equals("NaN") ? new String[0] : Arrays.stream(campos[12].split(",")).map(String::trim).toArray(String[]::new);
+        this.tags = campos[13].equals("NaN") ? new String[0] : Arrays.stream(campos[13].split(",")).map(String::trim).toArray(String[]::new);
     }
 
     // Imprimir
@@ -106,13 +108,18 @@ public class Game implements Cloneable {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         String dataStr = (releaseDate != null) ? sdf.format(releaseDate) : "NaN";
 
+        // CORREÇÃO APLICADA AQUI
+        String supportedLanguagesStr = "[" + String.join(", ", supportedLanguages) + "]";
+        String categoriesStr = "[" + String.join(", ", categories) + "]";
+        String genresStr = "[" + String.join(", ", genres) + "]";
+        String tagsStr = "[" + String.join(", ", tags) + "]";
 
         System.out.println(
             "=> " + appID + " ## " + name + " ## " + dataStr + " ## " +
-            estimatedOwners + " ## " + price + " ## " + Arrays.toString(supportedLanguages) + " ## " +
+            estimatedOwners + " ## " + price + " ## " + supportedLanguagesStr + " ## " +
             metacriticScore + " ## " + userScore + " ## " + achievements + " ## [" +
-            publisher + "] ## [" + developer + "] ## " + Arrays.toString(categories) + " ## " +
-            Arrays.toString(genres) + " ## " + Arrays.toString(tags) + " ##"
+            publisher + "] ## [" + developer + "] ## " + categoriesStr + " ## " +
+            genresStr + " ## " + tagsStr + " ##"
         );
     }
 
@@ -139,7 +146,7 @@ public class Game implements Cloneable {
                 game.ler(dadosCSV.get(entrada));
                 game.imprimir();
             } else {
-                System.out.println("=> NaN ## NaN ## NaN ## NaN ## -1 ## [NaN] ## -1 ## -1 ## -1 ## NaN ## NaN ## [NaN] ## [NaN] ## [NaN] ##");
+                System.out.println("=> NaN ## NaN ## NaN ## NaN ## -1 ## [] ## -1 ## -1 ## -1 ## NaN ## NaN ## [] ## [] ## [] ##");
             }
         }
 
